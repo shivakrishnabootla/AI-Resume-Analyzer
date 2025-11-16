@@ -1,0 +1,265 @@
+================================================================================
+COMPREHENSIVE DOCUMENTATION PROMPT FOR AI RESUME ANALYZER PROJECT
+================================================================================
+
+You are a senior technical writer and engineer. Produce complete, professional 
+documentation for the Python Streamlit project stored at 
+d:\kitta\Ai-resume-analyzer-main (AI Resume Analyzer). 
+
+Create the docs in markdown files and include exact commands, code snippets, 
+configuration examples, and troubleshooting steps tailored for Windows PowerShell 
+users. Be exhaustive — mention every important part of the project: purpose, 
+features, architecture, dependencies, setup, running, database schema, key source 
+files and functions, UI/theme notes, and common issues with fixes. 
+
+Produce both an end-user README and developer-oriented reference docs. Use clear 
+section headings, bullet lists, and code blocks. Ensure commands are PowerShell-
+compatible. 
+
+Where relevant, include safe best-practices (do not recommend committing secrets); 
+give exact env var names to use instead of hard-coded credentials. Provide example 
+`.env` and `docker-compose.yml` snippets. Also produce a short FAQ and a one-page 
+project summary suitable for a project homepage.
+
+================================================================================
+REQUIREMENTS — INCLUDE ALL OF THE FOLLOWING SECTIONS AND CONTENT:
+================================================================================
+
+1) PROJECT SUMMARY (ONE PARAGRAPH + ONE-LINE ELEVATOR PITCH)
+   - Project name, purpose, main features (file upload, resume parsing, skill 
+     extraction, recommendations, scoring, feedback/admin UI).
+   - Tech stack list (Python version, Streamlit, pyresparser, pdfminer, spaCy, 
+     NLTK, Pillow, Plotly, MySQL).
+
+2) QUICK START (END-USER)
+   - Step-by-step commands to run locally on Windows PowerShell:
+     * Create/activate virtualenv (show both Activate.ps1 and the .bat fallback).
+     * Install requirements from App/requirements.txt.
+     * Example PowerShell commands to run the app:
+       ```powershell
+       py -m venv .venv
+       .\.venv\Scripts\Activate.ps1         # or .\.venv\Scripts\activate.bat
+       pip install -r App\requirements.txt
+       py -m streamlit run App\App.py --server.port 8503
+       ```
+   - Note on using py launcher and port flag; what to do if port in use.
+
+3) INSTALLATION & ENVIRONMENT (DEVELOPER)
+   - Environment prerequisites (Python 3.9.x as used, PowerShell details).
+   - How to install and why spaCy model may be needed. Provide commands:
+     ```powershell
+     py -m pip install spacy
+     py -m spacy download en_core_web_sm
+     ```
+   - How to fix common venv issues (broken venv referencing missing system 
+     Python); how to recreate venv:
+     ```powershell
+     Remove-Item -Recurse -Force .venv
+     py -m venv .venv
+     .\.venv\Scripts\Activate.ps1
+     pip install -r App\requirements.txt
+     ```
+
+4) CONFIGURATION & SECRETS
+   - Explain the app currently contains hard-coded DB credentials 
+     (host='localhost', user='root', password='123456', database 'cv'). 
+     Recommend replacing with env vars. Provide example .env:
+     ```
+     DB_HOST=localhost
+     DB_USER=root
+     DB_PASSWORD=change_me
+     DB_NAME=cv
+     STREAMLIT_PORT=8503
+     ```
+   - Provide a minimal example.env and show how to load env vars in 
+     App\App.py (example code using python-dotenv):
+     ```python
+     from dotenv import load_dotenv
+     import os
+     load_dotenv()
+     DB_HOST = os.getenv("DB_HOST", "localhost")
+     DB_USER = os.getenv("DB_USER", "root")
+     DB_PASSWORD = os.getenv("DB_PASSWORD", "")
+     DB_NAME = os.getenv("DB_NAME", "cv")
+     ```
+   - Recommend never committing .env.
+
+5) DATABASE SCHEMA & MIGRATIONS
+   - Explicitly list the tables created in App.py:
+     * CV database and tables user_data and user_feedback.
+   - Provide the exact CREATE TABLE statements (copied from the file), explain 
+     columns, types, and constraints.
+   - Provide SQL snippet to manually create/inspect tables and a tip to connect 
+     using MySQL Workbench.
+
+6) FILE MAP & KEY COMPONENTS (FILE-BY-FILE)
+   At minimum describe:
+   
+   a) App\App.py — main Streamlit app; explain sections:
+      - Theme/CSS injection
+      - add_bg_from_local function (currently disabled)
+      - Header/logo SVG
+      - Sidebar HTML
+      - Upload/parse workflow
+      - Database insertion functions insert_data/insertf_data
+      - Admin screens
+      - Feedback screens
+      - Plotly charts
+      - Resume parsing via pyresparser
+   
+   b) App\background.jpg — generated background image 
+      (note: currently app uses CSS gradient; JPG is disabled).
+   
+   c) pyresparser\resume_parser.py and pyresparser\__init__.py 
+      — resume parsing library usage and API.
+   
+   d) App\requirements.txt 
+      — list of external libs (streamlit, pyresparser, pdfminer3, spacy, nltk, 
+      pillow, plotly, etc.)
+   
+   e) passs — mention (credentials file) and security note if present.
+   
+   f) Uploaded_Resumes/ 
+      — folder where uploaded resumes are stored.
+   
+   g) Logo/, screenshots/, admin/, feedback/, user/ 
+      — quick note.
+   
+   For each file, include brief code pointers:
+   - Where to change DB config
+   - Where CSS is injected
+   - Where to adjust theme.
+
+7) ARCHITECTURE & DATA FLOW
+   - Describe step-by-step flow when a user uploads a resume:
+     * File is uploaded via st.file_uploader
+     * Saved to Uploaded_Resumes/
+     * ResumeParser is invoked to extract fields
+     * pdf_reader reads text
+     * Scoring logic runs
+     * Recommendations chosen
+     * UI cards displayed
+     * insert_data writes to DB
+   - Mention external services/libraries invoked (geocoder, Nominatim for 
+     location, NLTK for stopwords, spaCy if used).
+
+8) UI & THEMING
+   - Describe the theme approach: 
+     * CSS injection via st.markdown(..., unsafe_allow_html=True)
+     * CSS variables (--primary-gold, --primary-blue, etc.)
+     * github-card and github-header classes
+     * Cloud animation
+     * Logo SVG
+   - Note that background.jpg is disabled; explain how to re-enable embedding 
+     add_bg_from_local('background.jpg') and how to keep overlay for readability.
+   - Give exact CSS variable names and recommended usages and an example snippet 
+     to change gold to a different accent.
+
+9) RUNNING & DEBUGGING
+   - Commands to run app (PowerShell command shown earlier).
+   - How to change port, kill running streamlit process, and fix port-in-use 
+     errors (PowerShell commands used earlier).
+   - Common errors and fixes:
+     * venv Activate.ps1 blocked by execution policy 
+       → show Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process 
+       or use activate.bat.
+     * spaCy model missing 
+       → run py -m spacy download en_core_web_sm with same interpreter used to 
+       run the app.
+     * MySQL connection failure 
+       → check service status, credentials, and port.
+     * "No Python at ..." error when venv references removed system Python 
+       → re-create venv.
+
+10) TESTS & VALIDATION
+    - If no tests exist, add recommended tests: 
+      * Unit tests for parsing functions
+      * Integration test for DB insert (using a test DB)
+      * UI smoke tests (Selenium/Playwright)
+    - Provide example pytest snippet and how to run tests:
+      ```powershell
+      pip install pytest
+      pytest tests/
+      ```
+
+11) DEPLOYMENT
+    - Provide two deployment patterns:
+      * Docker-based (provide sample Dockerfile and docker-compose.yml using 
+        MySQL service and streamlit command).
+      * Heroku / cloud VM notes (expose port, use streamlit as web process).
+    - Show sample docker-compose.yml snippet linking app and mysql with env vars.
+
+12) SECURITY & PRIVACY
+    - Note PII uploaded in resumes is sensitive. 
+    - Recommend retention policy, how to delete Uploaded_Resumes/, and 
+      anonymization options.
+    - Suggest HTTPS (reverse proxy), environment secrets, and db user with 
+      minimal privileges.
+
+13) CONTRIBUTION GUIDE
+    - Create CONTRIBUTING.md content: 
+      * Code style
+      * PR checklist
+      * Commit message format
+      * Environment setup
+      * Tests required
+    - Suggest labels and issues templates.
+
+14) CHANGELOG & VERSIONING
+    - Provide a sample CHANGELOG.md template and semantic versioning 
+      recommendations.
+
+15) FAQ AND TROUBLESHOOTING APPENDIX
+    - Provide at least 10 Q&A covering typical user/developer questions and 
+      solutions (e.g., how to change theme colors, re-enable JPG, increase file 
+      upload size, add spaCy model, fix encoding issues).
+
+16) APPENDIX: EXAMPLE FILES TO GENERATE
+    - README.md (full)
+    - docs/INSTALL.md
+    - docs/ARCHITECTURE.md
+    - docs/DEVELOPMENT.md
+    - CONTRIBUTING.md
+    - CHANGELOG.md
+    - docker-compose.yml example
+    - .env.example
+    - SECURITY.md
+    - FAQ.md
+
+================================================================================
+FORMATTING & TONE
+================================================================================
+
+- Use friendly, professional, concise language.
+- Use headings and short code blocks for commands.
+- Put file paths and commands in monospace.
+- Where possible, show the exact lines or code snippets to be edited in 
+  App\App.py (for example: where to change DB credentials, where to toggle the 
+  background function call).
+- Add a "Quick checklist" at the top of README for reviewers.
+
+================================================================================
+OUTPUT REQUIREMENTS
+================================================================================
+
+Return a deliverable set: 
+- A complete README.md content first
+- Short versions of the other docs (one file per heading)
+- .env.example
+- docker-compose.yml snippets
+
+If the repo is large, at minimum generate:
+- Full README.md
+- docs/ folder summaries with file content for the listed docs
+
+================================================================================
+EXTRA: AFTER GENERATING DOCS
+================================================================================
+
+Scan the repository for any hard-coded secrets or credentials and list them 
+(but do NOT output secrets in the docs). Provide step-by-step remediation to 
+move them to env vars.
+
+================================================================================
+END OF PROMPT
+================================================================================
